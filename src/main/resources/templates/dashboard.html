@@ -130,7 +130,8 @@
         </form>
     </nav>
 
-    <h1>今日掛號：歡迎，<span th:text="${doctorName}"></span> 醫師</h1>
+    <h1 th:text="|今日掛號：${today}|">今日掛號：2026-05-01</h1>
+    <p>歡迎，<span th:text="${doctor.name}"></span> 醫師</p>
 
     <div th:if="${successMessage}" class="success" th:text="${successMessage}"></div>
 
@@ -159,7 +160,7 @@
                 <td>
                     <!-- 只有狀態是 BOOKED 時才顯示取消按鈕 -->
                     <button th:if="${appt.status == 'BOOKED'}" class="cancel-btn" th:data-id="${appt.apptId}"
-                        onclick="cancelAppointment(this.getAttribute('data-id'))">取消</button>
+                        onclick="cancelAppointment(this)">取消</button>
                 </td>
             </tr>
         </tbody>
@@ -168,7 +169,8 @@
     <p class="empty" th:if="${#lists.isEmpty(appointments)}">今日尚無掛號記錄</p>
 
     <script>
-        function cancelAppointment(apptId) {
+        function cancelAppointment(btn) {
+            const apptId = btn.getAttribute('data-id');
             if (!confirm('確定要取消這筆掛號嗎？')) {
                 return;
             }
