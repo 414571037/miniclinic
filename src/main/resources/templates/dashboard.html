@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>醫師儀表板 - MiniClinic</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            color: #0F2443;
+            border-bottom: 3px solid #14B8A6;
+            padding-bottom: 8px;
+        }
+
+        nav {
+            background: #0F2443;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            color: #5EEAD4;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .logout-btn:hover {
+            color: #5EEAD4;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #0F2443;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        tr:hover td {
+            background: #F0FDFA;
+        }
+
+        .status-BOOKED {
+            color: #0369A1;
+            font-weight: bold;
+        }
+
+        .status-COMPLETED {
+            color: #15803D;
+            font-weight: bold;
+        }
+
+        .status-CANCELLED {
+            color: #9F1239;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            color: #94A3B8;
+            padding: 40px;
+        }
+
+        .cancel-btn {
+            background: #EF4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .cancel-btn:hover {
+            background: #DC2626;
+        }
+
+        .success {
+            background: #D1FAE5;
+            color: #065F46;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div>
+            <a th:href="@{/dashboard}">醫師儀表板</a>
+            <a th:href="@{/password}" style="margin-left: 20px;">修改密碼</a>
+        </div>
+        <form th:action="@{/logout}" method="post" style="margin: 0;">
+            <button type="submit" class="logout-btn">登出</button>
+        </form>
+    </nav>
+
+    <h1>今日掛號：歡迎，<span th:text="${doctorName}"></span> 醫師</h1>
+
+    <div th:if="${successMessage}" class="success" th:text="${successMessage}"></div>
+
+    <p>本日共 <strong th:text="${#lists.size(appointments)}">0</strong> 筆掛號</p>
+
+    <table th:if="${not #lists.isEmpty(appointments)}">
+        <thead>
+            <tr>
+                <th>掛號編號</th>
+                <th>病歷號</th>
+                <th>病患姓名</th>
+                <th>時段</th>
+                <th>狀態</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="appt : ${appointments}">
+                <td th:text="${appt.apptId}">1</td>
+                <td th:text="${appt.patient.chartNo}">TEST00001</td>
+                <td th:text="${appt.patient.name}">測試病患甲</td>
+                <td th:text="${appt.timeSlot}">AM</td>
+                <td>
+                    <span th:class="'status-' + ${appt.status}" th:text="${appt.status}">BOOKED</span>
+                </td>
+                <td>
+                    <!-- 只有狀態是 BOOKED 時才顯示取消按鈕 -->
+                    <button th:if="${appt.status == 'BOOKED'}" class="cancel-btn" th:data-id="${appt.apptId}"
+                        onclick="cancelAppointment(this.getAttribute('data-id'))">取消</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p class="empty" th:if="${#lists.isEmpty(appointments)}">今日尚無掛號記錄</p>
+
+    <script>
+        function cancelAppointment(apptId) {
+            if (!confirm('確定要取消這筆掛號嗎？')) {
+                return;
+            }
+
+            fetch(`/api/appointments/${apptId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: 'CANCELLED' })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload(); // 成功後重新整理頁面
+                    } else {
+                        alert(response.status === 403 ? '無權限取消此掛號' : '取消失敗，請稍後再試');
+                    }
+                });
+        }
+    </script>
+</body>
+
+</html>
