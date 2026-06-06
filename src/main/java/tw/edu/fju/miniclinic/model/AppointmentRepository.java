@@ -13,6 +13,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     // 支援直接透過 ID 字串查詢掛號
     List<Appointment> findByDoctorDoctorId(String doctorId);
+    // 支援直接透過 ID 字串查詢掛號 (建議加上 _ 避免解析歧義)
+    List<Appointment> findByDoctor_DoctorId(String doctorId);
 
     List<Appointment> findByPatient(Patient patient);
 
