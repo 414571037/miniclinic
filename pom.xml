@@ -56,6 +56,12 @@
 			<artifactId>sqlite-jdbc</artifactId>
 			<version>3.45.0.0</version>
 		</dependency>
+		<!-- PostgreSQL JDBC Driver -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 
 		<!-- Hibernate 對 SQLite 的方言支援 -->
 		<dependency>
@@ -84,7 +90,9 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
-		</dependency>	
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
