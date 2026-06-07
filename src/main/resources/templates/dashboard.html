@@ -174,7 +174,7 @@
                 </td>
                 <td>
                     <!-- 只有狀態是 BOOKED 時才顯示操作按鈕 -->
-                     <!-- 忘記寫 [AI-USED]-->
+                     
                     <button th:if="${appt.status == 'BOOKED'}" class="complete-btn" th:data-id="${appt.apptId}"
                         onclick="completeAppointment(this)">看診完成</button>
                     <button th:if="${appt.status == 'BOOKED'}" class="cancel-btn" th:data-id="${appt.apptId}"
