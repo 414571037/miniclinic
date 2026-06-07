@@ -94,6 +94,21 @@
             padding: 40px;
         }
 
+        .complete-btn {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+
+        .complete-btn:hover {
+            background: #059669;
+        }
+
         .cancel-btn {
             background: #EF4444;
             color: white;
@@ -158,7 +173,9 @@
                     <span th:class="'status-' + ${appt.status}" th:text="${appt.status}">BOOKED</span>
                 </td>
                 <td>
-                    <!-- 只有狀態是 BOOKED 時才顯示取消按鈕 -->
+                    <!-- 只有狀態是 BOOKED 時才顯示操作按鈕 -->
+                    <button th:if="${appt.status == 'BOOKED'}" class="complete-btn" th:data-id="${appt.apptId}"
+                        onclick="completeAppointment(this)">看診完成</button>
                     <button th:if="${appt.status == 'BOOKED'}" class="cancel-btn" th:data-id="${appt.apptId}"
                         onclick="cancelAppointment(this)">取消</button>
                 </td>
@@ -169,6 +186,28 @@
     <p class="empty" th:if="${#lists.isEmpty(appointments)}">今日尚無掛號記錄</p>
 
     <script>
+        function completeAppointment(btn) {
+            const apptId = btn.getAttribute('data-id');
+            if (!confirm('確定要將此掛號標記為「看診完成」嗎？')) {
+                return;
+            }
+
+            fetch(`/api/appointments/${apptId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: 'COMPLETED' })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload(); // 成功後重新整理頁面
+                    } else {
+                        alert(response.status === 403 ? '無權限修改此掛號' : '操作失敗，請稍後再試');
+                    }
+                });
+        }
+
         function cancelAppointment(btn) {
             const apptId = btn.getAttribute('data-id');
             if (!confirm('確定要取消這筆掛號嗎？')) {
